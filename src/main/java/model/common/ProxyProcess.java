@@ -115,7 +115,8 @@ public class ProxyProcess {
             url = jsono.getString("url");
             expectedReturn = jsono.getBoolean("expectedReturn");
             crp = new ClientRestfulPost(url);
-            crp.send(jsono);
+            crp.send(jsono.toString());
+            crp.post();
 
             if (expectedReturn) {
                 jsonReceived = crp.receive();

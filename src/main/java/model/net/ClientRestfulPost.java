@@ -20,6 +20,8 @@ public final class ClientRestfulPost implements ClientRestful {
     private ClientRequest clientRequest = null;
     private ClientResponse<String> clientResponse = null;
     private int status = 0;
+    private boolean posted = false;
+    private boolean sended = false;
 
     //==========================================================================
     /**
@@ -30,6 +32,7 @@ public final class ClientRestfulPost implements ClientRestful {
     public ClientRestfulPost(String url) {
 
         clientRequest = new ClientRequest(url);
+        clientRequest.accept(MediaType.APPLICATION_JSON);
 
     } // end ClientRestful
 
@@ -37,20 +40,20 @@ public final class ClientRestfulPost implements ClientRestful {
     /**
      * send a post data to the server.
      *
-     * @param json JSONObject
+     * @param text String
      * @throws Exception
      */
     @Override
-    public void send(JSONObject json) throws Exception {
+    public void send(String text) throws Exception {
 
-        if (json == null || json.length() < 0) {
-            throw new IllegalArgumentException("json is null or empty");
+        if (text == null || text.length() < 0) {
+            text = "";
         }
 
-        clientRequest.accept(MediaType.APPLICATION_JSON);
-        clientRequest.body(MediaType.APPLICATION_JSON, json.toString());        
+        clientRequest.body(MediaType.APPLICATION_JSON, text);
+        sended = true;
 
-    } // end send
+    } // end send    
 
     //==========================================================================
     /**
@@ -60,8 +63,16 @@ public final class ClientRestfulPost implements ClientRestful {
      * @throws Exception
      */
     @Override
-    public String receive() throws Exception {
-
+    public String receive() throws Exception {        
+        
+        if(!sended){
+            throw new Exception("please call the method send before you receive");
+        }
+        
+        if(!posted){
+            throw new Exception("please call the method post after you send");
+        }
+        
         StringBuilder sb = new StringBuilder();
         String inputString = null;
         BufferedReader br = null;
@@ -70,7 +81,6 @@ public final class ClientRestfulPost implements ClientRestful {
 
         try {
 
-            clientResponse = clientRequest.post(String.class);
             status = clientResponse.getStatus();
 
             if (status != 200) {
@@ -96,6 +106,22 @@ public final class ClientRestfulPost implements ClientRestful {
         return sb.toString();
 
     } // end receive
+
+    //==========================================================================
+    public void post() throws Exception {
+
+        if (posted) {
+            throw new Exception("you already post");
+        }
+
+        if (clientRequest == null) {
+            throw new Exception("clientRequest is null");
+        }
+
+        posted = true;
+
+        clientResponse = clientRequest.post(String.class);
+    }
 
     //==========================================================================
     public void closeClient() {

@@ -1,14 +1,13 @@
 package model.net;
 
-import org.json.JSONObject;
-
 /**
  *
  * @author skuarch
  */
 public interface ClientRestful {
     
-    public void send(JSONObject json) throws Exception;
+    public void send(String text) throws Exception;
     public String receive() throws Exception;
+    //public void execute();        
     
 } // end interface
